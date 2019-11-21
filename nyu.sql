@@ -1,15 +1,20 @@
 \connect ipeds;
 
 SELECT
-  CIPCODE,
-  CTOTALT,
-  CTOTALM,
-  CTOTALW,
+  CIPCODE as cipcode,
+  CTOTALT as all_graduates,
+  CTOTALM as male_graduates,
+  CTOTALW as female_graduates,
+  CASE WHEN CTOTALT = 0 THEN 0
+  ELSE TRUNC(
+    CAST(CTOTALM AS NUMERIC) / CTOTALT,
+    2)
+  END as percent_male,
   CASE WHEN CTOTALT = 0 THEN 0
   ELSE TRUNC(
     CAST(CTOTALW AS NUMERIC) / CTOTALT,
     2)
-  END as w
+  END as percent_female
 FROM completions
 WHERE
   -- NYU

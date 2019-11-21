@@ -70,4 +70,38 @@ CREATE TABLE completions (
 );
 
 COPY completions(UNITID,CIPCODE,MAJORNUM,AWLEVEL,XCTOTALT,CTOTALT,XCTOTALM,CTOTALM,XCTOTALW,CTOTALW,XCAIANT,CAIANT,XCAIANM,CAIANM,XCAIANW,CAIANW,XCASIAT,CASIAT,XCASIAM,CASIAM,XCASIAW,CASIAW,XCBKAAT,CBKAAT,XCBKAAM,CBKAAM,XCBKAAW,CBKAAW,XCHISPT,CHISPT,XCHISPM,CHISPM,XCHISPW,CHISPW,XCNHPIT,CNHPIT,XCNHPIM,CNHPIM,XCNHPIW,CNHPIW,XCWHITT,CWHITT,XCWHITM,CWHITM,XCWHITW,CWHITW,XC2MORT,C2MORT,XC2MORM,C2MORM,XC2MORW,C2MORW,XCUNKNT,CUNKNT,XCUNKNM,CUNKNM,XCUNKNW,CUNKNW,XCNRALT,CNRALT,XCNRALM,CNRALM,XCNRALW,CNRALW)
-FROM '/Users/ericlewis/Desktop/women-in-cs/c2016_a_rv.csv' DELIMITER ',' CSV HEADER;
+FROM '/Users/ericlewis/Desktop/women-in-cs/c2018_a.csv' DELIMITER ',' CSV HEADER;
+
+CREATE TABLE cip_codes (
+  CIPFamily TEXT,
+  CIPCode TEXT,
+  Action TEXT,
+  TextChange TEXT,
+  CIPTitle TEXT,
+  CIPDefinition TEXT,
+  CrossReferences TEXT,
+  Examples TEXT
+);
+
+COPY cip_codes(CIPFamily,CIPCode,Action,TextChange,CIPTitle,CIPDefinition,CrossReferences,Examples)
+FROM '/Users/ericlewis/Desktop/women-in-cs/CIPCode2010.csv' DELIMITER ',' CSV HEADER;
+
+CREATE TABLE dapip_data (
+  DapipId TEXT,
+  OpeId TEXT,
+  IpedsUnitIds TEXT,
+  LocationName TEXT,
+  ParentName TEXT,
+  ParentDapipId TEXT,
+  LocationType TEXT,
+  Address TEXT,
+  GeneralPhone TEXT,
+  AdminName TEXT,
+  AdminPhone TEXT,
+  AdminEmail TEXT,
+  Fax TEXT,
+  UpdateDate TEXT
+);
+
+COPY dapip_data(DapipId,OpeId,IpedsUnitIds,LocationName,ParentName,ParentDapipId,LocationType,Address,GeneralPhone,AdminName,AdminPhone,AdminEmail,Fax,UpdateDate)
+FROM '/Users/ericlewis/Desktop/women-in-cs/InstitutionCampus.csv' DELIMITER ',' CSV HEADER;

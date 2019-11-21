@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<style>
+body { font-family: 'Roboto', sans-serif;
+}
+.states {
+  fill: #ccc;
+  stroke: #fff;
+}
+.legend-1 {
+  fill: #EE4266;
+}
+.legend-2 {
+  fill: #FFD23F;
+}
+.legend-3 {
+  fill: #0EAD69;
+}
+</style>
+<body>
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+<script src="https://d3js.org/d3-array.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo.v1.min.js"></script>
+
+<script src="https://d3js.org/d3-selection.v1.min.js"></script>
+
+<script src="https://d3js.org/d3-collection.v1.min.js"></script>
+<script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+<script src="https://d3js.org/d3-request.v1.min.js"></script>
+<script src="https://d3js.org/d3-transition.v1.min.js"></script>
+
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+
+<script src="https://d3js.org/d3-color.v1.min.js"></script>
+<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+
+<script>
+var width = 960,
+    height = 500;
+
+var projection = d3.geoAlbersUsa();
+var path = d3.geoPath()
+    .projection(projection);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+// const myColor = d3.interpolateRgbBasis(['#EE4266', '#0EAD69', '#0EAD69']);
+// var myColor = d3.scaleQuantile().domain([0, 1]).range(['blue', 'beige', 'red']);
+var myColor = d3.scaleThreshold().domain([0.25, 0.45, 1]).range(['#EE4266', '#FFD23F', '#0EAD69']);
+
+
+d3.json("us.json", function(error, us) {
+  svg.append("path")
+    .attr("class", "states")
+    .datum(topojson.feature(us, us.objects.states))
+    .attr("d", path);
+  d3.json("by_school2.json", function(error, data) {
+
+    data = data.filter(d => d.lng && d.lat && projection([d.lng, d.lat]));
+    data = data.map(d => {
+      d.x = projection([d.lng, d.lat])[0]
+      d.y = projection([d.lng, d.lat])[1]
+      return d;
+    });
+    const simulation = d3.forceSimulation(data)
+      .force("collide", d3.forceCollide(3).strength(0.1).iterations(2))
+
+
+    const node = svg.append("g")
+      // .attr("fill", "#fff")
+      // .attr("stroke", "#000")
+      // .attr("stroke-width", 1.5)
+    .selectAll("circle")
+    .data(data)
+    .join("circle")
+      .attr("fill", d => myColor(d.percent_women))
+      .attr("r", d => Math.sqrt(d.both / 3))
+      .attr("opacity", 0.75)
+      .attr("x", d => d.x)
+      .attr("y", d => d.y)
+
+    // const node = svg.selectAll("circle")
+    //   .data(data)
+    //   .enter()
+    //   .append("circle")
+    //   .attr("r", function(d) {
+    //     return Math.sqrt(d.both / 3);
+    //   })
+    //     .style("fill", d => )
+    //     .style("opacity", 0.55)
+    simulation.on("tick", () => {
+      node
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y);
+    });
+    setTimeout(() => {
+      simulation.tick(50)
+      setTimeout(() => simulation.stop(), 500)
+    }, 0)
+
+    var quantize = d3.scaleThreshold().domain([0.25, 0.45, 1]).range(['legend-1', 'legend-2', 'legend-3']);
+
+    svg.append("g")
+      .attr("class", "legendQuant")
+      .attr("transform", "translate(830,250)");
+
+    var legend = d3.legendColor()
+      .labelFormat(d3.format(".2f"))
+      .useClass(true)
+      .title("% of Bachelor's in Computer Science graduates that are female")
+      .labels(["0-25%", "25-45%", "45-100%"])
+      .titleWidth(120)
+      .scale(quantize);
+
+    svg.select(".legendQuant")
+      .call(legend);
+
+  });
+});
+
+
+
+</script>
