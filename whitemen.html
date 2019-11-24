@@ -9,13 +9,13 @@ body { font-family: 'Roboto', sans-serif;
   stroke: #fff;
 }
 .legend-1 {
-  fill: #0EAD69;
+  fill: #EE4266;
 }
 .legend-2 {
   fill: #FFD23F;
 }
 .legend-3 {
-  fill: #EE4266;
+  fill: #0EAD69;
 }
 </style>
 <body>
@@ -52,7 +52,7 @@ var svg = d3.select("body").append("svg")
 
 // const myColor = d3.interpolateRgbBasis(['#EE4266', '#0EAD69', '#0EAD69']);
 // var myColor = d3.scaleQuantile().domain([0, 1]).range(['blue', 'beige', 'red']);
-var myColor = d3.scaleThreshold().domain([0.55, 0.75, 1]).range([ '#0EAD69', '#FFD23F', '#EE4266']);
+var myColor = d3.scaleThreshold().domain([0.25, 0.55, 1]).range(['#0EAD69', '#FFD23F', '#EE4266']);
 
 
 d3.json("us.json", function(error, us) {
@@ -60,7 +60,7 @@ d3.json("us.json", function(error, us) {
     .attr("class", "states")
     .datum(topojson.feature(us, us.objects.states))
     .attr("d", path);
-  d3.json("by_school2.json", function(error, data) {
+  d3.json("white_men_by_school_2.json", function(error, data) {
 
     data = data.filter(d => d.lng && d.lat && projection([d.lng, d.lat]));
     data = data.map(d => {
@@ -73,15 +73,27 @@ d3.json("us.json", function(error, us) {
 
 
     const node = svg.append("g")
-      .selectAll("circle")
-      .data(data)
-      .join("circle")
-        .attr("fill", d => myColor(1 - d.percent_women))
-        .attr("r", d => 1.75 * Math.sqrt(d.both / (2 * Math.PI)))
-        .attr("opacity", 0.75)
-        .attr("x", d => d.x)
-        .attr("y", d => d.y)
+      // .attr("fill", "#fff")
+      // .attr("stroke", "#000")
+      // .attr("stroke-width", 1.5)
+    .selectAll("circle")
+    .data(data)
+    .join("circle")
+      .attr("fill", d => myColor(d.percent_white_men))
+      .attr("r", d => Math.sqrt(d.all_students))
+      .attr("opacity", 0.75)
+      .attr("x", d => d.x)
+      .attr("y", d => d.y)
 
+    // const node = svg.selectAll("circle")
+    //   .data(data)
+    //   .enter()
+    //   .append("circle")
+    //   .attr("r", function(d) {
+    //     return Math.sqrt(d.both / 3);
+    //   })
+    //     .style("fill", d => )
+    //     .style("opacity", 0.55)
     simulation.on("tick", () => {
       node
           .attr("cx", d => d.x)
@@ -92,7 +104,7 @@ d3.json("us.json", function(error, us) {
       setTimeout(() => simulation.stop(), 500)
     }, 0)
 
-    var quantize = d3.scaleThreshold().domain([0.25, 0.55, 1]).range(['legend-1', 'legend-2', 'legend-3']);
+    var quantize = d3.scaleThreshold().domain([0.25, 0.45, 1]).range(['legend-1', 'legend-2', 'legend-3']);
 
     svg.append("g")
       .attr("class", "legendQuant")
@@ -101,8 +113,8 @@ d3.json("us.json", function(error, us) {
     var legend = d3.legendColor()
       .labelFormat(d3.format(".2f"))
       .useClass(true)
-      .title("% of Bachelor's in Computer Science graduates that are male")
-      .labels(["0-55%",  "55-75%", "75-100%",])
+      .title("% of Bachelor's in Computer Science graduates that are female")
+      .labels(["0-25%", "25-45%", "45-100%"])
       .titleWidth(120)
       .scale(quantize);
 
